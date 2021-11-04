@@ -1,7 +1,8 @@
 const fs = require('fs');
-
 const http = require('http');
 const url = require('url');
+const slugify = require('slugify');
+
 
 
 //FILES
@@ -70,9 +71,13 @@ const data = fs.readFileSync(`${__dirname}/dev-data/data.json`, "utf-8");
 //Comment faire pour remplacer les placeholders dans la template? notre dataObj contient la data parsée JSON en array. Il faut looper sur l'array et remplacer.
 const dataObj = JSON.parse(data);
 
+const slugs = dataObj.map(el => slugify(el.productName, {lower : true}));
+console.log(slugs);
+
 const tempOverview = fs.readFileSync(`${__dirname}/templates/template-overview.html`, "utf-8");
 const tempCard = fs.readFileSync(`${__dirname}/templates/template-card.html`, "utf-8");
 const tempProduct = fs.readFileSync(`${__dirname}/templates/template-product.html`, "utf-8");
+
 
 
 
@@ -101,7 +106,6 @@ const server = http.createServer((req, res) => {
         const output = replaceTemplate(tempProduct, product);
         res.end(output);
         
-
         //API
 
     } else if (pathname === "/api") {
@@ -119,7 +123,7 @@ const server = http.createServer((req, res) => {
             "Content-type": "text/html",
             "my-own-header": "Hello-World"
         });
-        res.end("<h1>Page not found</h1>");
+        res.end("<h1>Page not found bitch</h1>");
     }
 });
 
@@ -128,4 +132,7 @@ server.listen(8000, "127.0.0.1", () => {
     console.log("Listening to requests on port 8000");
 
 });
+
+
+
 
