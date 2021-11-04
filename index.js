@@ -59,7 +59,7 @@ const replaceTemplate = (temp, product) => {
     output = output.replace(/{%FROM%}/g , product.from);
     output = output.replace(/{%NUTRIENTS%}/g , product.nutrients);
     output = output.replace(/{%QUANTITY%}/g , product.quantity);
-    output = output.replace(/{%DESCRIPTION%}/g , product.descriptions);
+    output = output.replace(/{%DESCRIPTION%}/g , product.description);
     output = output.replace(/{%ID%}/g , product.id);
     
     if(!product.organic) output = output.replace(/{%NOT_ORGANIC%}/g, 'not-organic');
@@ -77,10 +77,13 @@ const tempProduct = fs.readFileSync(`${__dirname}/templates/template-product.htm
 
 
 const server = http.createServer((req, res) => {
-    const pathName = req.url;
+    
+    //Si on regarde dans le parsing du url, on peut voir qu'il possède plusieurs propriétés, dans ce cas-ci, nous avons query, c'est à dire l'ID de notre produit et pathname, le lien qui mène vers ce produit(card).
+    const {query, pathname} = url.parse(req.url, true);
+
 
     //WELCOME PAGE
-    if (pathName === "/" || pathName === "/overview") {
+    if (pathname === "/" || pathname === "/overview") {
         res.writeHead(200, {
             "Content-type": "text/html"
         });
@@ -89,12 +92,19 @@ const server = http.createServer((req, res) => {
         res.end(output);
 
         //PRODUCT PAGE
-    } else if (pathName === "/products") {
-        res.end("This is the PRODUCTS page");
+    } else if (pathname === "/product") {
+        //On va créer une variable qui va nous permettre de rentrer dans l'array de dataObj et recupérer l'élement qui est à la position query.ID
+        res.writeHead(200, {
+            "Content-type": "text/html"
+        });
+        const product = dataObj[query.id];
+        const output = replaceTemplate(tempProduct, product);
+        res.end(output);
+        
 
         //API
 
-    } else if (pathName === "/api") {
+    } else if (pathname === "/api") {
         //JSON.parse va prendre les data de notre fichier et va le traduire en string.
         res.writeHead(200, {
             "Content-type": "application/json"
@@ -118,3 +128,4 @@ server.listen(8000, "127.0.0.1", () => {
     console.log("Listening to requests on port 8000");
 
 });
+
